@@ -43,11 +43,11 @@ app.post('/login', async (req, res) => {
     }
 
     if (userResults.length > 0) {
-      // ตรวจสอบว่าเป็นรหัสผ่านแบบ plaintext หรือไม่
       const storedPassword = userResults[0].password;
 
-      // เทียบรหัสผ่านแบบ plaintext แทนการใช้ bcrypt
-      if (password === storedPassword) {
+      // ใช้ bcrypt เพื่อเปรียบเทียบรหัสผ่านที่ถูกแฮช
+      const isMatch = await bcrypt.compare(password, storedPassword);
+      if (isMatch) {
         const token = jwt.sign(
           { id: userResults[0].user_id, role: 'user' },
           secretKey,
@@ -72,7 +72,8 @@ app.post('/login', async (req, res) => {
       if (riderResults.length > 0) {
         const storedPassword = riderResults[0].password;
 
-        if (password === storedPassword) {
+        const isMatch = await bcrypt.compare(password, storedPassword);
+        if (isMatch) {
           const token = jwt.sign(
             { id: riderResults[0].rider_id, role: 'rider' },
             secretKey,
